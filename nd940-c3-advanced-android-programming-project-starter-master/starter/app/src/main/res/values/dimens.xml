@@ -2,4 +2,16 @@
     <dimen name="fab_margin">16dp</dimen>
 
     <dimen name="default_text_size">20sp</dimen>
+
+    <dimen name="clipRectRight">400dp</dimen>
+    <dimen name="clipRectBottom">400dp</dimen>
+    <dimen name="clipRectTop">0dp</dimen>
+    <dimen name="clipRectLeft">0dp</dimen>
+
+    <dimen name="rectInset">8dp</dimen>
+
+    <dimen name="strokeWidth">8dp</dimen>
+
+    <dimen name="text_x">230dp</dimen>
+    <dimen name="text_y">35dp</dimen>
 </resources>
