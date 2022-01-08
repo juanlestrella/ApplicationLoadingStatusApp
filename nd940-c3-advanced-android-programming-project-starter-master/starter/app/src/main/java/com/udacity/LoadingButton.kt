@@ -1,7 +1,7 @@
 package com.udacity
 
-import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
@@ -9,17 +9,28 @@ import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.View
 import androidx.core.content.ContextCompat
-import kotlinx.android.synthetic.main.content_main.view.*
 import kotlin.properties.Delegates
 
 class LoadingButton @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
-    private val paint = Paint().apply {
+    private val textPaint = Paint().apply {
         isAntiAlias = true
         strokeWidth = resources.getDimension(R.dimen.strokeWidth)
         textSize = resources.getDimension(R.dimen.default_text_size)
+    }
+    private val progressPaint = Paint().apply {
+        isAntiAlias = true
+        style = Paint.Style.FILL
+    }
+    private val rectanglePaint = Paint().apply {
+        isAntiAlias = true
+        style = Paint.Style.FILL
+    }
+    private val circlePaint = Paint().apply {
+        isAntiAlias = true
+        style = Paint.Style.FILL
     }
 
     private var widthSize = 0
@@ -84,7 +95,27 @@ class LoadingButton @JvmOverloads constructor(
 
 
     init {
-        // need to check when buttonState is Completed or Loading
+        // setup attributes
+        setupAttributes(attrs)
+    }
+
+    @SuppressLint("ResourceType")
+    private fun setupAttributes(attrs: AttributeSet?) {
+        context.theme.obtainStyledAttributes(
+            attrs,
+            R.styleable.LoadingButton,
+            0,
+            0
+        ).apply {
+            try{
+                rectanglePaint.color = getColor(R.styleable.LoadingButton_backgroundColor,
+                    ContextCompat.getColor(context, R.color.colorPrimary))
+                textPaint.color = getColor(R.styleable.LoadingButton_textColor,
+                    ContextCompat.getColor(context, R.color.white))
+            } finally {
+                recycle()
+            }
+        }
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -93,20 +124,6 @@ class LoadingButton @JvmOverloads constructor(
         drawProgressBar(canvas)
         drawCircle(canvas)
         drawText(canvas)
-    }
-
-    private fun drawCircle(canvas: Canvas) {
-        paint.color = ContextCompat.getColor(context, R.color.orange)
-        canvas.drawArc(measuredWidth / 2 + 160f,
-            measuredHeight / 2 -50f,
-            measuredWidth/2 + 210f,
-            measuredHeight/2+50f,
-            0f, progressCircle, true, paint)
-    }
-
-    private fun drawProgressBar(canvas: Canvas){
-        paint.color = ContextCompat.getColor(context, R.color.colorPrimaryDark)
-        canvas.drawRect(0f, 0f, currentWidth, measuredHeight.toFloat(), paint)
     }
 
     private fun drawRectangle(canvas: Canvas) {
@@ -118,18 +135,32 @@ class LoadingButton @JvmOverloads constructor(
         canvas.drawColor(Color.CYAN)
     }
 
+    private fun drawProgressBar(canvas: Canvas){
+        progressPaint.color = ContextCompat.getColor(context, R.color.colorPrimaryDark)
+        canvas.drawRect(0f, 0f, currentWidth, measuredHeight.toFloat(), progressPaint)
+    }
+
+    private fun drawCircle(canvas: Canvas) {
+        circlePaint.color = ContextCompat.getColor(context, R.color.orange)
+        canvas.drawArc(measuredWidth / 2 + 160f,
+            measuredHeight / 2 -50f,
+            measuredWidth/2 + 210f,
+            measuredHeight/2+50f,
+            0f, progressCircle, true, circlePaint)
+    }
+
     private fun drawText(canvas: Canvas){
-        paint.color = Color.WHITE
-        paint.textAlign = Paint.Align.RIGHT
+        //textPaint.color = Color.WHITE
+        textPaint.textAlign = Paint.Align.RIGHT
         canvas.drawText(buttonText,
-            textX, textY, paint)
+            textX, textY, textPaint)
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val minw: Int = paddingLeft + paddingRight + suggestedMinimumWidth
         val w: Int = resolveSizeAndState(minw, widthMeasureSpec, 1)
         val h: Int = resolveSizeAndState(
-            MeasureSpec.getSize(w),
+            View.MeasureSpec.getSize(w),
             heightMeasureSpec,
             0
         )
